@@ -1,10 +1,10 @@
 {
-  "name": "mero-form",
-  "version": "1.0.0",
+  "name": "mero-react-form",
+  "version": "0.0.1",
   "description": "Simple react form ",
   "author": "shrijan00003",
   "license": "MIT",
-  "repository": "shrijan00003/mero-form",
+  "repository": "shrijan00003/mero-react-form",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",
