@@ -66,6 +66,21 @@ const App = () => {
 export default App
 ```
 
+## Completed
+
+- [x] Minimal input field with usePropState (That will be updated if props change)
+- [x] useMeroForm hook with `values, handleSubmit, handleBlur, errors, removeError`
+- [x] yup schema validation.
+- [x] Validation on submit by default
+- [x] Errors will have error values asynchronously
+
+## Todo
+
+- [ ] Handle change if user want and does not care about re rendering.
+- [ ] custom validation function for real time validation
+- [ ] `setFieldValue, setFieldError, setValues, setErrors` utilities.
+- [ ] reinitialize functionality
+
 ## License
 
 MIT © [shrijan00003](https://github.com/shrijan00003)
