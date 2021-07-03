@@ -1,22 +1,13 @@
 import * as React from 'react'
-import styles from './styles.module.css'
 
 // REference
 
 // https://codesandbox.io/embed/jzm3jrrr03?fontsize=14&module=%2Fsrc%2FApp.js
 
-interface Props {
-  text: string
-}
-
-interface IInputField {
+interface IInputField extends React.InputHTMLAttributes<HTMLInputElement> {
   name: string
   value?: string
-  handleBlur?: (pair: Record<string, string>) => (e: any) => void
-}
-
-export const ExampleComponent = ({ text }: Props) => {
-  return <div className={styles.test}>Example Component: {text}</div>
+  onBlur?: (e: any) => (pair: Record<string, string>) => void
 }
 
 const usePropState = (value = '') => {
@@ -32,14 +23,19 @@ const usePropState = (value = '') => {
 export const InputField: React.FC<IInputField> = ({
   name,
   value,
-  handleBlur
+  onBlur,
+  ...rest
 }) => {
   const [state, setState] = usePropState(value)
 
   const _onBlur = (e: any) => {
-    if (handleBlur) {
-      handleBlur({ [name]: state })(e)
+    if (onBlur) {
+      onBlur(e)({ [name]: state })
     }
+  }
+
+  const _onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setState(e.target.value)
   }
 
   return (
@@ -47,7 +43,8 @@ export const InputField: React.FC<IInputField> = ({
       name={name}
       value={state}
       onBlur={_onBlur}
-      onChange={(e) => setState(e.target.value)}
+      onChange={_onChange}
+      {...rest}
     />
   )
 }
@@ -74,7 +71,16 @@ const reducer = (state: any, action: any) => {
   }
 }
 
-export const useMeroForm = (props: any) => {
+export interface IUseMeroForm<T> {
+  onSubmit: ({ values }: { values: T }) => void
+  initialValues: T
+}
+
+export const useMeroForm = <T,>(props: IUseMeroForm<T>) => {
+  if (!props.onSubmit) {
+    throw new Error('Pleas pass onsubmit to useMeroForm !!')
+  }
+
   const [state, dispatch] = React.useReducer(reducer, {
     values: props.initialValues,
     errors: {},
@@ -86,8 +92,14 @@ export const useMeroForm = (props: any) => {
     console.log('File: index.tsx, Line: 34 => ', e)
   }
 
-  const handleBlur = (pair: any) => (e: any) => {
+  const handleBlur = (e: any) => (pair: any) => {
     e.persist()
+
+    const hasValue = Object.values(pair).some(Boolean)
+
+    if (!hasValue) {
+      return
+    }
 
     dispatch({
       type: 'SET_FIELD_VALUE',
@@ -97,5 +109,27 @@ export const useMeroForm = (props: any) => {
     })
   }
 
-  return { handleChange, handleBlur, ...state }
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const form = e.currentTarget
+
+    const formElements = form.elements as typeof form.elements &
+      typeof props.initialValues
+
+    Object.keys(props.initialValues).forEach((key) => {
+      dispatch({
+        type: 'SET_FIELD_VALUE',
+        payload: {
+          [key]: formElements[key].value
+        }
+      })
+    })
+
+    props.onSubmit({
+      values: state.values
+    })
+  }
+
+  return { handleChange, handleBlur, handleSubmit, ...state }
 }

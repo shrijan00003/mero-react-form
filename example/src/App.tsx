@@ -1,32 +1,40 @@
 import React from 'react'
 
-import { ExampleComponent, InputField, useMeroForm } from 'mero-form'
-import 'mero-form/dist/index.css'
+import { InputField, useMeroForm } from 'mero-react-form'
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 const App = () => {
-  const { handleBlur, values, touched } = useMeroForm({
+  const { values, handleSubmit } = useMeroForm({
     initialValues: {
-      name: ''
+      name: '',
+      address: ''
+    },
+    onSubmit: async ({ values }) => {
+      console.log({ name: values.name, address: values.address })
+      await sleep(1000)
+      alert(JSON.stringify(values, null, 2))
     }
   })
 
-  console.log('File: App.tsx, Line: 11 => ', { values, touched })
+  // const handleSubmit = (e: any) => {
+  //   e.preventDefault()
+  //   console.log('File: App.tsx, Line: 15 => ', { touched, values })
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault()
-    console.log('File: App.tsx, Line: 16 => ', e.target.name.value)
-    console.log('File: App.tsx, Line: 18 => ', { values })
-
-    for (const target of e.target) {
-      console.log({ [target.name]: target.value })
-    }
-  }
+  //   for (const target of e.target) {
+  //     console.log({ [target.name]: target.value })
+  //   }
+  // }
 
   return (
     <>
-      <ExampleComponent text='Create React Library Example 😄' />
       <form onSubmit={handleSubmit}>
-        <InputField name='name' handleBlur={handleBlur} value={values.name} />
+        <InputField name='name' value={values.name} className='name-input' />
+        <InputField
+          name='address'
+          value={values.address}
+          className='address-input'
+        />
         <button type='submit'>Submit</button>
       </form>
     </>
