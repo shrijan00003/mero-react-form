@@ -1,15 +1,22 @@
 import React from 'react'
+import * as yup from 'yup'
 
 import { InputField, useMeroForm } from 'mero-react-form'
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
+const schema = yup.object().shape({
+  name: yup.string().required('Name required'),
+  address: yup.string().min(18, 'Must be at least 18 len')
+})
+
 const App = () => {
-  const { values, handleSubmit } = useMeroForm({
+  const { values, handleSubmit, errors, removeError } = useMeroForm({
     initialValues: {
       name: '',
       address: ''
     },
+    validationSchema: schema,
     onSubmit: async ({ values }) => {
       console.log({ name: values.name, address: values.address })
       await sleep(1000)
@@ -17,24 +24,22 @@ const App = () => {
     }
   })
 
-  // const handleSubmit = (e: any) => {
-  //   e.preventDefault()
-  //   console.log('File: App.tsx, Line: 15 => ', { touched, values })
-
-  //   for (const target of e.target) {
-  //     console.log({ [target.name]: target.value })
-  //   }
-  // }
-
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <InputField name='name' value={values.name} className='name-input' />
-        <InputField
-          name='address'
-          value={values.address}
-          className='address-input'
-        />
+        <div>
+          <InputField name='name' value={values.name} className='name-input' />
+          <div> {errors.name ? errors.name : null}</div>
+        </div>
+        <div>
+          <InputField
+            name='address'
+            value={values.address}
+            className='address-input'
+            onKeyUp={removeError}
+          />
+          <div> {errors.address ? errors.address : null}</div>
+        </div>
         <button type='submit'>Submit</button>
       </form>
     </>
